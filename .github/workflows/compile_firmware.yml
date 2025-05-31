@@ -1,0 +1,40 @@
+name: Compile Firmware and Check Size
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  compile-firmware:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Arduino CLI
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | sh
+          sudo mv bin/arduino-cli /usr/local/bin/
+          arduino-cli config init
+          arduino-cli core update-index
+          arduino-cli core install esp32:esp32
+          # Add any library installations here if needed, e.g.:
+          # arduino-cli lib install "Some Library"
+
+      - name: Compile Sketch
+        run: |
+          arduino-cli compile --fqbn esp32:esp32:esp32 light-controller/light-controller.ino --output-dir /tmp/build_output
+
+      - name: Report Binary Size
+        run: |
+          SIZE_BYTES=$(arduino-cli compile --fqbn esp32:esp32:esp32 light-controller/light-controller.ino --show-properties sketch,size.total_bytes | cut -d '=' -f2 | tr -d '[:space:]')
+          SIZE_KB=$(echo "scale=2; $SIZE_BYTES / 1024" | bc)
+          echo "Binary size: $SIZE_BYTES bytes ($SIZE_KB KB)"
+          # Optionally, add a step here to fail the workflow if size exceeds a limit
+          # MAX_SIZE=1048576 # 1MB example limit
+          # if [ $SIZE_BYTES -gt $MAX_SIZE ]; then
+          #   echo "Error: Binary size ($SIZE_BYTES bytes) exceeds maximum allowed size ($MAX_SIZE bytes)."
+          #   exit 1
+          # fi
