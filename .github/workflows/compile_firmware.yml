@@ -27,11 +27,11 @@ jobs:
           arduino-cli lib install "AsyncTCP"
           arduino-cli lib install "ElegantOTA"
 
-          # Clone AiEsp32RotaryEncoder into the Arduino libraries folder using GITHUB_TOKEN
+          # Clone AiEsp32RotaryEncoder with the correct repo URL
           mkdir -p ~/Arduino/libraries
-          git clone --depth 1 https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/igorantolic/AiEsp32RotaryEncoder.git ~/Arduino/libraries/AiEsp32RotaryEncoder
+          git clone --depth 1 https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/igorantolic/ai-esp32-rotary-encoder.git ~/Arduino/libraries/AiEsp32RotaryEncoder
 
-          # Clone any custom libraries (e.g. Tapo API)
+          # Clone any custom libraries (e.g., Tapo API)
           git clone --depth 1 https://github.com/Slaymish/tapo-esp32.git ~/Arduino/libraries/tapo-esp32
 
       - name: Compile Sketch
