@@ -20,6 +20,8 @@ jobs:
           arduino-cli config init
           arduino-cli core update-index
           arduino-cli core install esp32:esp32
+          arduino-cli lib install "ESPAsyncWebServer"
+          arduino-cli lib install "AsyncTCP"
           # Add any library installations here if needed, e.g.:
           # arduino-cli lib install "Some Library"
 
