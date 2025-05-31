@@ -1,0 +1,45 @@
+* Light Controller Connectivity Netlist
+
+* --- Supply rails ---
+VCC3V3   3V3   0    DC 3.3      ; 3.3 V regulator output
+VCC5V    5V    0    DC 5.0      ; 5 V USB bus
+
+* --- ESP32 Module ---
+* Pins: 1=3V3, 2=5V, 3=GND, 4=VRX, 5=VRY, 6=SW, 7=ENC_A, 8=ENC_B, 9=PIR_OUT, 10=NP_DIN
+XU1      3V3   5V    0   VRX  VRY  SW   ENC_A ENC_B PIR_OUT NP_DIN  ESP32_SUB
+
+* --- Joystick (XC4422) ---
+* Pins: 1=VCC, 2=GND, 3=VRX, 4=VRY, 5=SW
+XJ1      3V3   0    VRX  VRY   SW    JOYSTICK_SUB
+
+* --- Rotary Encoder (SR1230) ---
+* Pins: 1=A, 2=B, 3=C (common to GND)
+XE1      ENC_A ENC_B 0       ENCODER_SUB
+
+* --- PIR Sensor (HC-SR501) ---
+* Pins: 1=VCC, 2=GND, 3=OUT
+XP1      5V    0    PIR_OUT  PIRSENSOR_SUB
+
+* --- NeoPixel Ring (24× RGB) ---
+* Pins: 1=VCC, 2=GND, 3=DIN
+XN1      5V    0    NP_DIN   NEOPIXEL_SUB
+
+* --- Subcircuit stubs (connect pins only) ---
+* Format: .SUBCKT name pin1 pin2 …  
+.SUBCKT ESP32_SUB     3V3 5V GND VRX VRY SW ENC_A ENC_B PIR_OUT NP_DIN
+.ends ESP32_SUB
+
+.SUBCKT JOYSTICK_SUB  VCC GND VRX VRY SW
+.ends JOYSTICK_SUB
+
+.SUBCKT ENCODER_SUB   A   B   C
+.ends ENCODER_SUB
+
+.SUBCKT PIRSENSOR_SUB VCC GND OUT
+.ends PIRSENSOR_SUB
+
+.SUBCKT NEOPIXEL_SUB  VCC GND DIN
+.ends NEOPIXEL_SUB
+
+.END
+
