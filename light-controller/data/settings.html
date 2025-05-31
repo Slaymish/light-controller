@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Device Settings</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; }
+        label { margin-top: 10px; }
+        input { margin-bottom: 10px; width: 200px; padding: 5px; }
+        button { padding: 10px 20px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Device Settings</h1>
+    <form action="/settings" method="POST">
+        <label for="timeout">Inactivity Timeout (seconds):</label><br>
+        <input type="number" id="timeout" name="timeout"><br>
+
+        <label for="timer_steps">Timer Steps:</label><br>
+        <input type="number" id="timer_steps" name="timer_steps"><br>
+
+        <label for="led_brightness">LED Ring Brightness (0-255):</label><br>
+        <input type="number" id="led_brightness" name="led_brightness" min="0" max="255"><br>
+
+        <button type="submit">Save Settings</button>
+    </form>
+</body>
+</html>
