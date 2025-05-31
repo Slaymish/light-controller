@@ -3,6 +3,12 @@
   Hamish Burke – May 2025
 ────────────────────────────────────────────────────────*/
 #include <WiFi.h>
+// Include the Asynchronous TCP library, required by ESPAsyncWebServer
+#include <AsyncTCP.h>
+// Include the ESPAsyncWebServer library for creating a web server
+#include <ESPAsyncWebServer.h>
+// Include the ElegantOTA library for over-the-air updates
+#include <ElegantOTA.h>
 #include "tapo_device.h"
 #include <AiEsp32RotaryEncoder.h>
 #include "env.h"
@@ -15,6 +21,9 @@ Bulb bulbs[] = {
   { "192.168.1.225", TapoDevice() }
 };
 constexpr uint8_t NUM_BULBS = sizeof(bulbs) / sizeof(bulbs[0]);
+
+// Create an Asynchronous Web Server object on port 80
+AsyncWebServer server(80);
 
 /* Pins */
 #define PIN_A  18
@@ -30,8 +39,25 @@ volatile long prevVal = -1;
 
 /* Helpers */
 void connectWiFi() {
+  if (WiFi.status() == WL_CONNECTED) {
+    return; // Already connected, no action needed
+  }
+  Serial.println("Connecting to WiFi...");
   WiFi.begin(WIFI_SSID, WIFI_PASS);
-  while (WiFi.status() != WL_CONNECTED) delay(200);
+  int attempts = 0;
+  // Try to connect for a limited time (approx. 10 seconds)
+  while (WiFi.status() != WL_CONNECTED && attempts < 50) { // 50 attempts * 200ms delay = 10 seconds
+    delay(200);
+    Serial.print(".");
+    attempts++;
+  }
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("\nWiFi connected");
+    Serial.print("IP address: ");
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println("\nWiFi connection failed after several attempts.");
+  }
 }
 
 void loginAll() {
@@ -55,6 +81,12 @@ void setup() {
   connectWiFi();
   loginAll();
 
+  // Start the ElegantOTA service, passing the web server object
+  ElegantOTA.begin(&server);
+  // Start the HTTP server
+  server.begin();
+  Serial.println("HTTP server started for OTA updates."); // Optional: for debugging
+
   pinMode(PIN_A,  INPUT_PULLUP);
   pinMode(PIN_B,  INPUT_PULLUP);
   pinMode(PIN_SW, INPUT_PULLUP);
@@ -67,6 +99,18 @@ void setup() {
 }
 
 void loop() {
+  // Handle any pending OTA update tasks
+  ElegantOTA.loop();
+
+  // Check Wi-Fi connection and attempt to reconnect if necessary
+  if (WiFi.status() != WL_CONNECTED) {
+    connectWiFi(); // Attempt to reconnect to Wi-Fi
+    if (WiFi.status() == WL_CONNECTED) {
+      loginAll(); // Re-login to bulbs after WiFi reconnection
+      // ESPAsyncWebServer and ElegantOTA should handle WiFi reconnections gracefully by themselves.
+      // No explicit server restart is usually needed.
+    }
+  }
   long v = enc.readEncoder();
   if (v != prevVal) {
     prevVal = v;
