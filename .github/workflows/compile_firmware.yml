@@ -20,14 +20,18 @@ jobs:
           arduino-cli config init
           arduino-cli core update-index
           arduino-cli core install esp32:esp32
+
+          # Install standard libraries from the registry
           arduino-cli lib install "ESPAsyncWebServer"
           arduino-cli lib install "AsyncTCP"
-          arduino-cli lib install "AiEsp32RotaryEncoder"
           arduino-cli lib install "ElegantOTA"
+
+          # Install AiEsp32RotaryEncoder directly from GitHub
+          arduino-cli lib install https://github.com/igorantolic/AiEsp32RotaryEncoder.git
+
+          # Clone any custom libraries (e.g. Tapo API)
           mkdir -p ~/Arduino/libraries
           git clone https://github.com/Slaymish/tapo-esp32.git ~/Arduino/libraries/tapo-esp32
-          # Add any library installations here if needed, e.g.:
-          # arduino-cli lib install "Some Library"
 
       - name: Compile Sketch
         run: |
@@ -38,9 +42,9 @@ jobs:
           SIZE_BYTES=$(arduino-cli compile --fqbn esp32:esp32:esp32 light-controller/light-controller.ino --show-properties sketch,size.total_bytes | cut -d '=' -f2 | tr -d '[:space:]')
           SIZE_KB=$(echo "scale=2; $SIZE_BYTES / 1024" | bc)
           echo "Binary size: $SIZE_BYTES bytes ($SIZE_KB KB)"
-          # Optionally, add a step here to fail the workflow if size exceeds a limit
-          # MAX_SIZE=1048576 # 1MB example limit
-          # if [ $SIZE_BYTES -gt $MAX_SIZE ]; then
-          #   echo "Error: Binary size ($SIZE_BYTES bytes) exceeds maximum allowed size ($MAX_SIZE bytes)."
+          # Uncomment to fail if size exceeds limit:
+          # MAX_SIZE=1048576  # 1 MB
+          # if [ "$SIZE_BYTES" -gt "$MAX_SIZE" ]; then
+          #   echo "Error: Binary size ($SIZE_BYTES bytes) exceeds maximum allowed ($MAX_SIZE bytes)."
           #   exit 1
           # fi
