@@ -23,6 +23,8 @@ jobs:
           arduino-cli lib install "ESPAsyncWebServer"
           arduino-cli lib install "AsyncTCP"
           arduino-cli lib install "ElegantOTA"
+          mkdir -p ~/Arduino/libraries
+          git clone https://github.com/Slaymish/tapo-esp32.git ~/Arduino/libraries/tapo-esp32
           # Add any library installations here if needed, e.g.:
           # arduino-cli lib install "Some Library"
 
