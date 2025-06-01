@@ -34,6 +34,10 @@ jobs:
           # Clone any custom libraries (e.g., Tapo API)
           git clone --depth 1 https://github.com/Slaymish/tapo-esp32.git ~/Arduino/libraries/tapo-esp32
 
+      - name: Generate env.hAdd commentMore actions
+        run: |
+          chmod +x generate_env_header.sh
+          bash generate_env_header.sh
       - name: Compile Sketch
         run: |
           arduino-cli compile \
